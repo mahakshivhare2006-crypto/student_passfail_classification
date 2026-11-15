@@ -161,17 +161,17 @@ def suggestions(row: dict):
     """Simple, rule-based improvement tips shown to the student."""
     tips = []
     if row["attendance"] < 75:
-        tips.append("📅 Attendance 75% se kam hai. Classes regularly attend karein.")
+        tips.append("📅 Attendance is below 75%. Try to attend classes regularly.")
     if row["study_hours"] < 3:
-        tips.append("📚 Daily study hours badhayein (kam se kam 3-4 ghante).")
+        tips.append("📚 Increase your daily study hours (at least 3-4 hours).")
     if row["previous_marks"] < 50:
-        tips.append("📝 Pichhle exam ke weak topics ko dobara revise karein.")
+        tips.append("📝 Revise the weak topics from your last exam.")
     if row["assignment_score"] < 60:
-        tips.append("🗂️ Assignments time par aur dhyan se complete karein.")
+        tips.append("🗂️ Complete assignments on time and with more care.")
     if row["sleep_hours"] < 6 or row["sleep_hours"] > 9:
-        tips.append("😴 Sleep 6-9 ghante ke beech rakhein, isse focus behtar hota hai.")
+        tips.append("😴 Keep your sleep between 6 and 9 hours for better focus.")
     if not tips:
-        tips.append("✅ Sab kuch achha chal raha hai. Isi tarah consistent rahein!")
+        tips.append("✅ Everything looks good. Keep up the consistency!")
     return tips
 
 
@@ -193,7 +193,7 @@ with st.sidebar:
     )
     st.markdown("---")
     if DEMO_MODE:
-        st.warning("Demo mode: `model.pkl` nahi mila.")
+        st.warning("Demo mode: `model.pkl` not found.")
     else:
         st.success("Model loaded ✔")
     st.caption(f"Pass threshold: {int(PASS_THRESHOLD * 100)}%")
@@ -220,10 +220,10 @@ if page == "🏠 Home":
     st.markdown("### How it works")
     st.markdown(
         """
-        1. **Single Prediction** mein student ki details enter karein.
-        2. Model result batata hai: **Pass** ya **Fail**, saath mein probability.
-        3. **Batch Prediction** mein CSV upload karke poori class ka result nikaalein.
-        4. **History** mein pichhli predictions dekhein aur download karein.
+        1. Enter the student's details in **Single Prediction**.
+        2. The model returns the result: **Pass** or **Fail**, along with the probability.
+        3. Upload a CSV in **Batch Prediction** to get results for an entire class.
+        4. View and download earlier predictions in **History**.
         """
     )
 
@@ -267,7 +267,7 @@ elif page == "🔮 Single Prediction":
                 f"""
                 <div class="result-card {css}">
                     <h1>{emoji} {label.upper()}</h1>
-                    <p>{name_txt} ka predicted result</p>
+                    <p>Predicted result for {name_txt}</p>
                     <p><b>Confidence (Pass): {prob * 100:.1f}%</b></p>
                 </div>
                 """,
@@ -303,7 +303,7 @@ elif page == "🔮 Single Prediction":
 # ---------- BATCH PREDICTION ----------
 elif page == "📂 Batch Prediction":
     st.subheader("Upload CSV for Bulk Prediction")
-    st.caption("CSV mein ye columns hone chahiye: " + ", ".join(f"`{n}`" for n in FEATURE_NAMES))
+    st.caption("Your CSV must contain these columns: " + ", ".join(f"`{n}`" for n in FEATURE_NAMES))
 
     template = pd.DataFrame([{f[0]: f[4] for f in FEATURES}])
     st.download_button(
@@ -319,12 +319,12 @@ elif page == "📂 Batch Prediction":
         try:
             data = pd.read_csv(file)
         except Exception as e:
-            st.error(f"CSV read nahi ho paayi: {e}")
+            st.error(f"Could not read the CSV file: {e}")
             st.stop()
 
         missing = [c for c in FEATURE_NAMES if c not in data.columns]
         if missing:
-            st.error(f"Ye columns missing hain: {missing}")
+            st.error(f"These columns are missing: {missing}")
         else:
             data = data.dropna(subset=FEATURE_NAMES).reset_index(drop=True)
             labels, proba = predict(data)
@@ -372,7 +372,7 @@ elif page == "🕘 History":
             st.session_state.history = []
             st.rerun()
     else:
-        st.info("Abhi tak koi prediction nahi hui hai.")
+        st.info("No predictions have been made yet.")
 
 # ---------- ABOUT ----------
 else:
@@ -381,8 +381,8 @@ else:
         """
         **Project:** Student Pass / Fail Classification
 
-        **Goal:** Student ke academic aur lifestyle factors se predict karna ki
-        wo exam mein pass hoga ya fail.
+        **Goal:** To predict whether a student will pass or fail an exam
+        based on academic and lifestyle factors.
 
         **Tech Stack**
         - Python, Pandas, NumPy
@@ -394,11 +394,10 @@ else:
         - Type: Binary classification (Pass = 1, Fail = 0)
         - Output: Class label + probability of passing
 
-        > Is section mein apne model ka naam (Logistic Regression / Random Forest etc.),
-        > accuracy, dataset ka source aur team members ke naam add kar dein.
+        > In this section, add your model name (Logistic Regression / Random Forest, etc.),
+        > its accuracy, the dataset source, and your team members' names.
         """
     )
 
 st.markdown("---")
 st.caption("Made with ❤️ using Streamlit")
-
